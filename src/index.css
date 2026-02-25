@@ -1,0 +1,30 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+@theme {
+  --font-syne: "Syne", sans-serif;
+  --font-dm: "DM Sans", sans-serif;
+  
+  --color-bg: #0A0A0F;
+  --color-surface: #12121A;
+  --color-surface2: #1A1A26;
+  --color-border: #2A2A3E;
+  --color-accent: #FF3F5B;
+  --color-accent2: #6C63FF;
+  --color-muted: #888899;
+}
+
+@layer base {
+  body {
+    @apply bg-bg text-[#E8E8F0] font-dm antialiased;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+.animate-pulse-custom {
+  animation: pulse 2s infinite;
+}
