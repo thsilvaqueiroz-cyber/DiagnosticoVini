@@ -3,6 +3,12 @@ import { motion } from 'motion/react';
 import { Check, ArrowRight } from 'lucide-react';
 import { supabase } from './lib/supabase';
 
+// Polyfill básico para scrollIntoView em navegadores muito antigos
+if (typeof window !== 'undefined' && !window.Element.prototype.scrollIntoView) {
+  // @ts-ignore
+  window.Element.prototype.scrollIntoView = function() {};
+}
+
 export default function App() {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [phoneError, setPhoneError] = useState<string | null>(null);
