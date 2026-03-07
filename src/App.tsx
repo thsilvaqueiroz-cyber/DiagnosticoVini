@@ -1,7 +1,6 @@
 import { useState, useEffect, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
 import { motion } from 'motion/react';
 import { Check, ArrowRight } from 'lucide-react';
-import { supabase } from './lib/supabase';
 
 // Polyfill básico para scrollIntoView em navegadores muito antigos
 if (typeof window !== 'undefined' && !window.Element.prototype.scrollIntoView) {
@@ -133,40 +132,33 @@ export default function App() {
     });
 
     try {
-      // 1. Save to Supabase
-      const { error } = await supabase
-        .from('form_responses')
-        .insert([formData]);
-
-      if (error) throw error;
-
-      // 2. Trigger n8n Webhook
-      try {
-        await fetch('https://n8n-n8n.gjvjfn.easypanel.host/webhook/formulariovini', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+      // Trigger n8n Webhook
+      const response = await fetch('https://n8n-n8n.gjvjfn.easypanel.host/webhook/formulariovini', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          lead_info: {
+            name: formData.lead_name || "",
+            phone: formData.lead_phone || ""
           },
-          body: JSON.stringify({
-            lead_info: {
-              name: formData.lead_name || "",
-              phone: formData.lead_phone || ""
-            },
-            responses: detailedResponses,
-            raw_data: formData,
-            submitted_at: new Date().toISOString(),
-            source: 'Diagnóstico Estratégico App'
-          }),
-        });
-      } catch (webhookError) {
-        console.error('Error triggering webhook:', webhookError);
+          responses: detailedResponses,
+          raw_data: formData,
+          submitted_at: new Date().toISOString(),
+          source: 'Diagnóstico Estratégico App'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao enviar para o webhook');
       }
       
       setIsSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert('Ocorreu um erro ao enviar o formulário. Por favor, verifique se as credenciais do Supabase estão configuradas corretamente.');
+      alert('Ocorreu um erro ao enviar o formulário. Por favor, tente novamente em instantes.');
     } finally {
       setIsSubmitting(false);
     }
