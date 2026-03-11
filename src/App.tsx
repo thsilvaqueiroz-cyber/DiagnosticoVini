@@ -133,6 +133,7 @@ export default function App() {
 
     try {
       // Trigger n8n Webhook
+      console.log("Enviando para o webhook...");
       const response = await fetch('https://n8n-n8n.gjvjfn.easypanel.host/webhook/formulariovini', {
         method: 'POST',
         headers: {
@@ -150,15 +151,23 @@ export default function App() {
         }),
       });
 
+      console.log("Status da resposta:", response.status);
+
       if (!response.ok) {
-        throw new Error('Falha ao enviar para o webhook');
+        throw new Error(`Erro ${response.status}: O webhook recusou a conexão. Verifique se o workflow está ATIVO no n8n.`);
       }
       
       setIsSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting form:', error);
-      alert('Ocorreu um erro ao enviar o formulário. Por favor, tente novamente em instantes.');
+      
+      // Check if it's a network/CORS error
+      if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+        alert('Erro de conexão (CORS ou Rede). O navegador bloqueou o envio para o n8n. Verifique se o CORS está ativo no n8n e se a URL está correta.');
+      } else {
+        alert(error.message || 'Ocorreu um erro ao enviar o formulário. Por favor, tente novamente em instantes.');
+      }
     } finally {
       setIsSubmitting(false);
     }
